@@ -4,8 +4,8 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, TrendingUp, Award, ArrowRight } from "lucide-react";
-let currentInterviewFeedback = "";
-let currentscore = 0;
+// let currentInterviewFeedback = "";
+// let currentscore = 0;
 const interviewHistory = [
   {
     id: 2,
@@ -55,28 +55,79 @@ const interviewHistory = [
 ];
 
 const Profile = () => {
-const location=useLocation();
-const data=location.state.feedback||{totalFrames:0};
-if(data.totalFrames){
-  const slouchPercent=Math.round((data.shoulder_level/data.totalFrames)*100);
-  const lookAwayPercent = Math.round(((data.lookLeftCount + data.lookRightCount) / data.totalFrames) * 100);
-  const sitStraightPercent=Math.round((data.sitStraight/data.totalFrames)*100);
-  console.log("Analysis",{slouchPercent,lookAwayPercent,sitStraightPercent});
-    if (slouchPercent > 10) currentInterviewFeedback+="Your shoulders were often uneven or tilted. This visual cue often signals low energy, fatigue, or casualness to an interviewer.Sit with your back against the chair and imagine a string pulling the top of your head toward the ceiling. Good posture signals engagement and readiness.\n";
-    if (lookAwayPercent > 10) currentInterviewFeedback+="We noticed you frequently looked away from the camera. In a remote interview, looking at the camera is equivalent to making eye contact. Looking sideways can be interpreted as reading notes, being distracted, or lacking confidence.Try to position your Zoom/Teams window directly under your webcam so you are looking at the interviewer while looking at the camera.\n";
-    if(sitStraightPercent>10) currentInterviewFeedback+="You were frequently positioned to the side of the video frame. This can make the interview feel unbalanced and may result in parts of your body language being cut off.Adjust your chair so your nose is aligned with the center of your webcam. You should be the focal point of the screen.\n";
-    if (currentInterviewFeedback ==="") currentInterviewFeedback+="Excellent posture! You maintained good eye contact.";
-    currentscore=Math.max(0,100-(slouchPercent+lookAwayPercent+sitStraightPercent));
+  const location = useLocation();
+  // const data = location.state.feedback || { totalFrames: 0 };
+  const data = location.state?.feedback || { totalFrames: 0 };
+  let currentInterviewFeedback = "";
+  let currentscore = 0;
+
+  if (data.totalFrames) {
+    const slouchPercent = Math.round(
+      (data.shoulder_level / data.totalFrames) * 100
+    );
+    const lookAwayPercent = Math.round(
+      ((data.lookLeftCount + data.lookRightCount) / data.totalFrames) * 100
+    );
+    const sitStraightPercent = Math.round(
+      (data.sitStraight / data.totalFrames) * 100
+    );
+    console.log("Analysis", {
+      slouchPercent,
+      lookAwayPercent,
+      sitStraightPercent,
+    });
+    if (slouchPercent > 10)
+      currentInterviewFeedback +=
+        "Your shoulders were often uneven or tilted. This visual cue often signals low energy, fatigue, or casualness to an interviewer.Sit with your back against the chair and imagine a string pulling the top of your head toward the ceiling. Good posture signals engagement and readiness.\n";
+    if (lookAwayPercent > 10)
+      currentInterviewFeedback +=
+        "We noticed you frequently looked away from the camera. In a remote interview, looking at the camera is equivalent to making eye contact. Looking sideways can be interpreted as reading notes, being distracted, or lacking confidence.Try to position your Zoom/Teams window directly under your webcam so you are looking at the interviewer while looking at the camera.\n";
+    if (sitStraightPercent > 10)
+      currentInterviewFeedback +=
+        "You were frequently positioned to the side of the video frame. This can make the interview feel unbalanced and may result in parts of your body language being cut off.Adjust your chair so your nose is aligned with the center of your webcam. You should be the focal point of the screen.\n";
+    if (currentInterviewFeedback === "")
+      currentInterviewFeedback +=
+        "Excellent posture! You maintained good eye contact.";
+    currentscore = Math.max(
+      0,
+      100 - (slouchPercent + lookAwayPercent + sitStraightPercent)
+    );
+  }
+  // const displayList = [
+  //   {
+  //     id: 1,
+  //     title: "Software Developer Interview",
+  //     date: new Date().toLocaleDateString("en-GB", {
+  //       day: "numeric",
+  //       month: "short",
+  //       year: "numeric",
+  //     }),
+  //     score: currentscore || 0,
+  //     feedback: currentInterviewFeedback || "No data available",
+  //     category: "Technical",
+  //   },
+  //   ...interviewHistory,
+  // ];
+ let displayList = [...interviewHistory];
+
+if (data.totalFrames > 0) {
+  displayList = [
+    {
+      id: 1,
+      title: "Software Developer Interview",
+      date: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      score: currentscore,
+      feedback: currentInterviewFeedback,
+      category: "Technical",
+    },
+    ...displayList,
+  ];
 }
-const displayList=[
-  {id:1,
-    title:"Software Developer Interview",
-    date:new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}),
-    score:currentscore||0,
-    feedback:currentInterviewFeedback||"No data available",
-    category:"Technical"
-  }, ...interviewHistory
-]
+
   const averageScore = Math.round(
     displayList.reduce((sum, interview) => sum + interview.score, 0) /
       displayList.length

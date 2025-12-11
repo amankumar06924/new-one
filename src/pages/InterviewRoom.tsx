@@ -252,6 +252,7 @@ const loopRef=useRef(null);
                 <div className="relative h-full bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
                   <Avatar className="h-32 w-32 border-4 border-accent">
                     {/* <AvatarImage src="/placeholder.svg" /> */}
+                     <AvatarImage src="https://imgcdn.stablediffusionweb.com/2024/4/13/cda5e567-2966-41e6-b2af-314ed7837221.jpg" />
                     <AvatarFallback className="bg-accent text-accent-foreground text-4xl">
                       AI
                     </AvatarFallback>
