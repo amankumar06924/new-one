@@ -49,6 +49,7 @@ if(data.totalFrames){
   const lookAwayPercent = Math.round(((data.lookLeftCount + data.lookRightCount) / data.totalFrames) * 100);
   const sitStraightPercent=Math.round((data.sitStraight/data.totalFrames)*100);
   console.log("Analysis",{slouchPercent,lookAwayPercent,sitStraightPercent});
+if(currentInterviewFeedback) currentInterviewFeedback="";
     if (slouchPercent > 10) currentInterviewFeedback+="Your shoulders were often uneven or tilted. This visual cue often signals low energy, fatigue, or casualness to an interviewer.Sit with your back against the chair and imagine a string pulling the top of your head toward the ceiling. Good posture signals engagement and readiness.\n";
     if (lookAwayPercent > 10) currentInterviewFeedback+="We noticed you frequently looked away from the camera. In a remote interview, looking at the camera is equivalent to making eye contact. Looking sideways can be interpreted as reading notes, being distracted, or lacking confidence.Try to position your Zoom/Teams window directly under your webcam so you are looking at the interviewer while looking at the camera.\n";
     if(sitStraightPercent>10) currentInterviewFeedback+="You were frequently positioned to the side of the video frame. This can make the interview feel unbalanced and may result in parts of your body language being cut off.Adjust your chair so your nose is aligned with the center of your webcam. You should be the focal point of the screen.\n";

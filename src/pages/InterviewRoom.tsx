@@ -10,6 +10,7 @@ import * as poseDetection from "@tensorflow-models/pose-detection";
 import * as tf from '@tensorflow/tfjs-core';
 // Register WebGL backend
 import '@tensorflow/tfjs-backend-webgl';
+import speechRecognition,{useSpeechRecognition} from "react-speech-recognition";
 // state for feedback messages;
 const InterviewRoom = () => {
   const location=useLocation();
@@ -17,10 +18,11 @@ const InterviewRoom = () => {
   const navigate = useNavigate();
   const [notes, setNotes] = useState("");
   const [isMuted, setIsMuted] = useState(true);
-  const [isVideoOff, setIsVideoOff] = useState(true);
+  const [cnt_IsVideoOff, set_cntIsVideoOff] = useState(1);
+  const [isVideoOff,setIsVideoOff]=useState(true);
   const videoRef=useRef(null);
   const [secondsRemaining,setSecondsRemaining] = useState(initialMinutes*60);
-
+  //const [currentStream,set_CurrentStream]=useState(null);
   const feedbackRef=useRef({
   "shoulder_level":0,
   "lookLeftCount":0,
@@ -28,6 +30,7 @@ const InterviewRoom = () => {
   "sitStraight":0,
   "totalFrames":0
 });
+const {transcript,listening,resetTranscript,browserSUpportsSpeechRecognition}=useSpeechRecognition();
 const detectorRef=useRef(null);
 const loopRef=useRef(null);
   const handleEndInterview = () => {
@@ -37,6 +40,9 @@ const loopRef=useRef(null);
         }
       })
   };
+  // useEffect(()=>{
+  //   set_cntIsVideoOff(cnt_IsVideoOff++);
+  // },[])
   useEffect(()=>{
     const loadModel=async()=>{
     await tf.ready();
@@ -64,18 +70,23 @@ const loopRef=useRef(null);
   }
   },[]);
   useEffect(()=>{
+    // if(cnt_IsVideoOff==0){
+    //   set_cntIsVideoOff(cnt_IsVideoOff++);
+    // }
     let currentStream=null;
     const startCamera= async ()=>{
-      try{
-        // Ask for user's permission.
+      if(cnt_IsVideoOff%2!=0){
+        try{
+          // Ask for user's permission.
         const stream=await navigator.mediaDevices.getUserMedia({
           video:true,
-          audio:true
+          audio:false
         });
-        currentStream=stream;
+       currentStream=stream;
         // if user allowed update isVideoOff variable.
+        //set_cntIsVideoOff(cnt_IsVideoOff++);
         setIsVideoOff(false);
-        setIsMuted(false);
+        //setIsMuted(false);
         // Waiting for React to render the video component and connecting the stream to it.
         setTimeout(()=>{
           if(videoRef.current){
@@ -84,10 +95,27 @@ const loopRef=useRef(null);
         },100)
       }catch(err){
         console.log("user dennied the permission");
-        setIsVideoOff(true);
-        setIsMuted(true)
+        //set_cntIsVideoOff(cnt_IsVideoOff);
+        setIsVideoOff(!isVideoOff);
+        //setIsMuted(true)
       }
     }
+    else if(cnt_IsVideoOff%2==0){
+      //currentStream.getTracks().forEach((track)=>{if(track===Video){track.stop();set_CurrentStream(null)}});
+      if(currentStream){
+        const videoTrack=currentStream.getVideoTracks();
+        if(videoTrack){
+          // videoTrack.enabled=!videoTrack.enabled;
+          // set_CurrentStream(videoTrack.enabled);
+          videoTrack.forEach((track)=>{
+            track.stop();
+          })
+           setIsVideoOff(!isVideoOff);
+        }
+        //set_CurrentStream(null);
+      }
+    }
+  }
     startCamera();
     // cleanup function
     // when the page unmounts the cleanup function will be automatically called and it turnoff the camera.
@@ -97,7 +125,7 @@ const loopRef=useRef(null);
         currentStream.getTracks().forEach(track=>track.stop());
       }
     }
-  },[])
+  },[cnt_IsVideoOff])
   useEffect(()=>{
     const setTimer=setInterval(()=>{
       setSecondsRemaining((prev)=>{
@@ -159,6 +187,27 @@ const loopRef=useRef(null);
     //     feedbackRef.current.sitStraight++; 
     // }
 
+    }
+  }
+  const toggleMic=async ()=>{
+    if(isMuted){
+      try{
+        const mic_stream=await navigator.mediaDevices.getUserMedia({
+          audio:true
+        });
+        setIsMuted(!isMuted);
+        speechRecognition.startListening({continuous:true,language:"en-US"});
+      }catch(err){
+        console.log("user denied the permission of microphone");
+      }
+    }
+    else{
+      setIsMuted(!isMuted);
+      speechRecognition.stopListening();
+      if(transcript){
+        console.log("user said ",transcript);
+      }
+      resetTranscript();
     }
   }
   return (
@@ -278,7 +327,7 @@ const loopRef=useRef(null);
           <Button
             size="lg"
             variant={isMuted ? "destructive" : "secondary"}
-            onClick={() => setIsMuted(!isMuted)}
+            onClick={() => toggleMic()}
             className="rounded-full h-14 w-14"
           >
             {isMuted ? (
@@ -289,11 +338,11 @@ const loopRef=useRef(null);
           </Button>
           <Button
             size="lg"
-            variant={isVideoOff ? "destructive" : "secondary"}
-            onClick={() => setIsVideoOff(!isVideoOff)}
+            variant={isVideoOff ?"destructive" : "secondary"}
+            onClick={() => {set_cntIsVideoOff((cnt_IsVideoOff)=>{return ++cnt_IsVideoOff});}}
             className="rounded-full h-14 w-14"
           >
-            {isVideoOff ? (
+            {cnt_IsVideoOff%2==0 ? (
               <VideoOff className="h-5 w-5" />
             ) : (
               <Video className="h-5 w-5" />
