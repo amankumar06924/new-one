@@ -337,10 +337,11 @@ const loopRef=useRef(null);
               <Mic className="h-5 w-5" />
             )}
           </Button>
-          <Button
+          {/* <Button
             size="lg"
             variant={isVideoOff ?"destructive" : "secondary"}
             onClick={() => {set_cntIsVideoOff((cnt_IsVideoOff)=>{return ++cnt_IsVideoOff});}}
+           
             className="rounded-full h-14 w-14"
           >
             {cnt_IsVideoOff%2==0 ? (
@@ -348,7 +349,23 @@ const loopRef=useRef(null);
             ) : (
               <Video className="h-5 w-5" />
             )}
-          </Button>
+          </Button> */}
+          <Button
+  size="lg"
+  variant={isVideoOff ? "destructive" : "secondary"}
+  onClick={() => {
+    set_cntIsVideoOff(prev => prev + 1);
+    setIsVideoOff(prev => !prev);  // important!
+  }}
+  className="rounded-full h-14 w-14"
+>
+  {isVideoOff ? (
+    <VideoOff className="h-5 w-5" />
+  ) : (
+    <Video className="h-5 w-5" />
+  )}
+</Button>
+
         </div>
       </div>
     </div>
